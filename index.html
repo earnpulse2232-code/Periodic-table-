@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="theme-color" content="#f8fafc">
+    <title>Speed Building Test — Periodic Table</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            padding: 0;
+        }
+        :root {
+            --bg-main: #f1f5f9;
+            --bg-card: #ffffff;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --primary-light: #eff6ff;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --green: #10b981;
+            --green-light: #ecfdf5;
+            --red: #ef4444;
+            --red-light: #fef2f2;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.08), 0 2px 4px -2px rgba(0,0,0,0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08);
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-dark);
+            min-height: 100dvh;
+            font-size: 15px;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+        button {
+            font-family: inherit;
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: inherit;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            vertical-align: middle;
+        }
+        .hidden { display: none !important; }
+
+        /* MODE SELECTION SCREEN */
+        .start-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-main);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .start-card {
+            width: 100%;
+            max-width: 440px;
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 36px 28px;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+        .brand-logo-img {
+            width: 72px;
+            height: 72px;
+            object-fit: contain;
+            margin: 0 auto 16px;
+            display: block;
+            border-radius: 16px;
+        }
+        .start-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+        .start-desc {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+        .mode-btn {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            width: 100%;
+            padding: 16px;
+            background: #fff;
+            border: 1.5px solid var(--border-color);
+            border-radius: 16px;
+            text-align: left;
+            margin-bottom: 12px;
+            transition: all 0.2s ease;
+        }
+        .mode-btn:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+        .mode-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        .mode-icon.quiz { background: #dbeafe; color: #2563eb; }
+        .mode-icon.test { background: #d1fae5; color: #059669; }
+        .mode-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 2px;
+        }
+        .mode-info-txt {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .mode-arrow {
+            margin-left: auto;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* MAIN APP */
+        .quiz-app {
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .quiz-header {
+            flex-shrink: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 18px;
+        }
+        .quiz-header-inner {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .hdr-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .hdr-logo-img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        .hdr-brand-title {
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--text-dark);
+        }
+        .hdr-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-dark);
+            transition: all 0.15s;
+        }
+        .hdr-btn:hover { background: var(--bg-main); }
+        .hdr-timer {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-family: monospace;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* QUESTIONS CONTAINER */
+        .quiz-main {
+            flex: 1;
+            overflow-y: auto;
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 24px 16px;
+        }
+        .q-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .q-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .q-num-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .lang-btn {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .q-text {
+            font-size: 16px;
+            line-height: 1.6;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 22px;
+            white-space: pre-line;
+        }
+        .opts {
+            display: flex;
+            flex-direction: column;
+            gap: 11px;
+        }
+        .opt {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 18px;
+            background: #fff;
+            border: 1.5px solid var(--border-color);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .opt:hover:not(.locked) {
+            border-color: var(--primary);
+            background: #f8fafc;
+        }
+        .opt.selected {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+        .opt.correct {
+            border-color: var(--green);
+            background: var(--green-light);
+        }
+        .opt.wrong {
+            border-color: var(--red);
+            background: var(--red-light);
+        }
+        .opt.locked { cursor: default; }
+        .opt-letter {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #fff;
+            border: 1.5px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+        .opt.selected .opt-letter {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #fff;
+        }
+        .opt.correct .opt-letter {
+            background: var(--green);
+            border-color: var(--green);
+            color: #fff;
+        }
+        .opt.wrong .opt-letter {
+            background: var(--red);
+            border-color: var(--red);
+            color: #fff;
+        }
+        .opt-text {
+            flex: 1;
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .opt-tag {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            text-transform: uppercase;
+        }
+        .opt.correct .opt-tag { background: var(--green); color: #fff; }
+        .opt.wrong .opt-tag { background: var(--red); color: #fff; }
+
+        .sol-box {
+            margin-top: 20px;
+            padding: 16px;
+            background: #f8fafc;
+            border-left: 4px solid var(--primary);
+            border-radius: 12px;
+        }
+        .sol-head {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--primary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .sol-content {
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--text-dark);
+        }
+
+        /* BOTTOM NAV */
+        .quiz-nav {
+            flex-shrink: 0;
+            background: #ffffff;
+            border-top: 1px solid var(--border-color);
+            padding: 12px 18px;
+        }
+        .quiz-nav-inner {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.15s ease;
+        }
+        .nav-btn.prev {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            color: var(--text-dark);
+        }
+        .nav-btn.prev:disabled { opacity: 0.4; cursor: not-allowed; }
+        .nav-btn.submit {
+            background: var(--green-light);
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+        .nav-btn.next {
+            background: var(--primary);
+            color: #ffffff;
+        }
+        .nav-btn.next:hover { background: var(--primary-hover); }
+
+        /* PALETTE MODAL */
+        .palette-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 150;
+            display: none;
+        }
+        .palette-overlay.open { display: block; }
+        .palette-drawer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: min(340px, 85vw);
+            background: #ffffff;
+            z-index: 160;
+            display: flex;
+            flex-direction: column;
+            transform: translateX(-100%);
+            transition: transform 0.25s ease;
+            box-shadow: var(--shadow-lg);
+        }
+        .palette-drawer.open { transform: translateX(0); }
+        .pal-head {
+            padding: 18px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 700;
+            font-size: 17px;
+        }
+        .pal-grid {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            align-content: start;
+        }
+        .pal-btn {
+            aspect-ratio: 1;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: #f8fafc;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.1s;
+        }
+        .pal-btn:hover { transform: scale(1.05); }
+        .pal-btn.answered { background: var(--green); color: #fff; border-color: var(--green); }
+        .pal-btn.current { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+        /* SUBMIT MODAL */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 170;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-box {
+            width: 100%;
+            max-width: 420px;
+            background: #fff;
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+        }
+        .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
+        .modal-stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 22px;
+        }
+        .modal-stat {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 14px;
+            border: 1px solid var(--border-color);
+        }
+        .modal-stat-num { font-size: 24px; font-weight: 800; color: var(--text-dark); }
+        .modal-stat-label { font-size: 12px; color: var(--text-muted); font-weight: 600; margin-top: 4px; }
+        .modal-actions { display: flex; flex-direction: column; gap: 10px; }
+        .modal-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .modal-btn.confirm { background: var(--primary); color: #fff; }
+        .modal-btn.cancel { background: #f1f5f9; color: var(--text-dark); }
+
+        /* RESULTS SCREEN */
+        .results-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-main);
+            z-index: 180;
+            display: none;
+            overflow-y: auto;
+            padding: 30px 16px 60px;
+        }
+        .results-screen.open { display: block; }
+        .results-box {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .res-hero { text-align: center; margin-bottom: 24px; }
+        .res-hero h2 { font-size: 26px; font-weight: 800; margin-bottom: 6px; }
+        .res-score-card {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            color: #fff;
+            border-radius: 20px;
+            padding: 28px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-md);
+        }
+        .res-score-val { font-size: 54px; font-weight: 800; line-height: 1; margin-bottom: 6px; }
+        .res-score-val span { font-size: 22px; opacity: 0.6; }
+        .res-score-lbl { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.8; }
+        .res-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .res-item {
+            background: #fff;
+            border-radius: 14px;
+            padding: 16px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+        .res-item-val { font-size: 22px; font-weight: 700; }
+        .res-item-lbl { font-size: 12px; color: var(--text-muted); font-weight: 600; margin-top: 4px; }
+        .res-actions { display: flex; flex-direction: column; gap: 10px; }
+        .res-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .res-btn.primary { background: var(--primary); color: #fff; }
+
+        /* TOAST */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-80px);
+            background: #0f172a;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 300;
+            opacity: 0;
+            transition: all 0.25s ease;
+            box-shadow: var(--shadow-lg);
+        }
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- START / MODE SELECT -->
+    <div class="start-screen" id="startScreen">
+        <div class="start-card">
+            <img src="logo.png" alt="Quiz Logo" class="brand-logo-img" onerror="this.style.display='none'">
+            <h1 class="start-title">Periodic Table &amp; Periodicity</h1>
+            <p class="start-desc">Speed Building Test — Choose your mode to begin.</p>
+            
+            <button class="mode-btn" onclick="startApp('quiz')">
+                <div class="mode-icon quiz"><i class="fas fa-bolt"></i></div>
+                <div>
+                    <div class="mode-name">Practice Mode</div>
+                    <div class="mode-info-txt">Instant answer &amp; key after each question.</div>
+                </div>
+                <i class="fas fa-arrow-right mode-arrow"></i>
+            </button>
+
+            <button class="mode-btn" onclick="startApp('test')">
+                <div class="mode-icon test"><i class="fas fa-clock"></i></div>
+                <div>
+                    <div class="mode-name">Exam Mode</div>
+                    <div class="mode-info-txt">Exam environment. View complete result at the end.</div>
+                </div>
+                <i class="fas fa-arrow-right mode-arrow"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN APP SCREEN -->
+    <div class="quiz-app hidden" id="quizApp">
+        <header class="quiz-header">
+            <div class="quiz-header-inner">
+                <button class="hdr-btn" onclick="openPalette()"><i class="fas fa-th-large"></i></button>
+                <div class="hdr-brand">
+                    <img src="logo.png" alt="Logo" class="hdr-logo-img" onerror="this.style.display='none'">
+                    <span class="hdr-brand-title">Chemistry Quiz</span>
+                </div>
+                <div class="hdr-timer">
+                    <i class="fas fa-stopwatch"></i>
+                    <span id="timerText">00:00</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="quiz-main" id="quizMain"></main>
+
+        <nav class="quiz-nav" id="quizNav">
+            <div class="quiz-nav-inner">
+                <button class="nav-btn prev" id="prevBtn" onclick="prevQuestion()">
+                    <i class="fas fa-arrow-left"></i> Previous
+                </button>
+                <button class="nav-btn submit" onclick="openSubmitModal()">
+                    <i class="fas fa-paper-plane"></i> Submit
+                </button>
+                <button class="nav-btn next" id="nextBtn" onclick="nextQuestion()">
+                    <span id="nextLabel">Next</span> <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </nav>
+    </div>
+
+    <!-- QUESTION PALETTE -->
+    <div class="palette-overlay" id="paletteOverlay" onclick="closePalette()"></div>
+    <aside class="palette-drawer" id="paletteDrawer">
+        <div class="pal-head">
+            <span>Questions</span>
+            <button onclick="closePalette()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="pal-grid" id="paletteGrid"></div>
+    </aside>
+
+    <!-- SUBMIT CONFIRMATION MODAL -->
+    <div class="modal-overlay" id="submitModal">
+        <div class="modal-box">
+            <h3 class="modal-title">Submit Test?</h3>
+            <div class="modal-stats-grid">
+                <div class="modal-stat">
+                    <div class="modal-stat-num" id="modalAttempted" style="color:var(--green)">0</div>
+                    <div class="modal-stat-label">Attempted</div>
+                </div>
+                <div class="modal-stat">
+                    <div class="modal-stat-num" id="modalUnattempted" style="color:var(--text-muted)">0</div>
+                    <div class="modal-stat-label">Unattempted</div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn confirm" onclick="confirmSubmit()">Yes, Finish Test</button>
+                <button class="modal-btn cancel" onclick="closeSubmitModal()">Resume Test</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FINAL RESULTS SCREEN -->
+    <div class="results-screen" id="resultsScreen">
+        <div class="results-box" id="resultsInner"></div>
+    </div>
+
+    <div class="toast" id="toast"><i class="fas fa-check"></i><span id="toastText"></span></div>
+
+    <script>
+        const QUESTIONS = [
+            {"en": "Which statement correctly describes the valency exhibited by phosphorus?", "hi": "निम्नलिखित में से कौन-सा कथन, फॉस्फोरस द्वारा प्रदर्शित संयोजकता का सही वर्णन करता है?", "opts": ["Phosphorus exhibits only a valency of three. / फॉस्फोरस केवल संयोजकता तीन प्रदर्शित करता है", "Phosphorus can exhibit valency of three or five / फॉस्फोरस संयोजकता तीन या पाँच प्रदर्शित कर सकता है", "Phosphorus exhibits only a valency of two. / फॉस्फोरस केवल संयोजकता दो प्रदर्शित करता है", "Phosphorus exhibits only a valency of five. / फॉस्फोरस केवल संयोजकता पाँच प्रदर्शित करता है"], "ans": 1},
+            {"en": "The element with the symbol K is:", "hi": "K प्रतीक वाला तत्व _______ है।", "opts": ["Palladium / पैलेडियम", "Potassium / पोटैशियम", "Krypton / क्रिप्टन", "Phosphorous / फॉस्फोरस"], "ans": 1},
+            {"en": "Which of the following pairs is correctly matched?", "hi": "निम्नलिखित में से कौन-सा युग्म सुमेलित है?", "opts": ["Ag – Argon / Ag – आर्गन", "Au – Aluminum / Au – एल्युमिनियम", "Pb – Lead / Pb – लेड", "Fe – Fluorine / Fe – फ्लोरीन"], "ans": 2},
+            {"en": "Which of the following element symbols does NOT match its element?", "hi": "निम्नलिखित में से किस तत्व का प्रतीक अपने तत्व के साथ सुमेलित नहीं है?", "opts": ["Sb for Seaborgium / सीबोर्गियम के लिए Sb", "As for Arsenic / आर्सेनिक के लिए As", "O for Oxygen / ऑक्सीजन के लिए O", "C for Carbon / कार्बन के लिए C"], "ans": 0},
+            {"en": "Which of the following statement(s) is/are true?\nStatement I: The symbol 'Ag' stands for gold.\nStatement II: The symbol 'Pb' represents lead.", "hi": "निम्नलिखित में से कौन-से कथन सत्य हैं?\nकथन I: प्रतीक 'Ag', गोल्ड को निरूपित करता है।\nकथन II: प्रतीक 'Pb', लेड को निरूपित करता है।", "opts": ["Both statements are correct / दोनों कथन सही हैं", "Statement I is incorrect, Statement II is correct / कथन I गलत है, कथन II सही है", "Both statements are incorrect / दोनों कथन गलत हैं", "Statement I is correct, Statement II is incorrect / कथन I सही है, कथन II गलत है"], "ans": 1},
+            {"en": "The electron gain enthalpy can be ______.", "hi": "इलेक्ट्रॉन लब्धि एन्थैल्पी ______ हो सकती है।", "opts": ["Both exothermic and endothermic / एक्ज़ोथिर्मिक और एंडोथर्मिक दोनों", "Always Zero / हमेशा शून्य", "Endothermic / एंडोथर्मिक", "Exothermic / एक्ज़ोथिर्मिक"], "ans": 0},
+            {"en": "The energy required to remove an electron from an atom is ______.", "hi": "एक परमाणु से एक इलेक्ट्रॉन को निकालने के लिए आवश्यक ऊर्जा ______ है।", "opts": ["Electronegativity / विद्युत् ऋणात्मकता", "Ionization potential / आयनीकरण क्षमता", "Activation energy / सक्रियण ऊर्जा", "Electron affinity / इलेक्ट्रॉन बंधुता"], "ans": 1},
+            {"en": "Which of the following has the highest electron affinity for electrons?", "hi": "निम्नलिखित में से किसकी इलेक्ट्रॉनों के लिए उच्चतम बंधुता है?", "opts": ["O-", "Na+", "F-", "Li+"], "ans": 2},
+            {"en": "In a chemical bond, the relative attraction of the nucleus to the electrons is known as ________.", "hi": "एक रासायनिक बंधन में, इलेक्ट्रॉनों के लिए नाभिक के सापेक्ष आकर्षण को ________ के रूप में जाना जाता है।", "opts": ["Photonic energy / फोटोनिक ऊर्जा", "Ionization energy / आयनीकरण ऊर्जा", "Electron affinity / इलेक्ट्रान संबंध", "Electronegativity / विद्युत्-ऋणात्मकता"], "ans": 3},
+            {"en": "The Group 16 elements of the long form of Periodic Table are also known as -", "hi": "आवर्त सारणी के दीर्घ रूप के वर्ग 16 के तत्वों को दूसरे किस नाम से जाना जाता है?", "opts": ["Halogens / हैलोजन", "Transition Metals / संक्रमण धातु", "Alkali Earth Metals / क्षार मिट्टी की धातुएँ", "Chalcogens / कैल्कोजीन"], "ans": 3},
+            {"en": "Who out of the following discovered that when closely related elements are grouped in a set of three, the atomic weight of the middle element was almost the arithmetical mean of the other two elements in that group?", "hi": "निम्नलिखित में से किसने पता लगाया कि जब निकटता से संबंधित तत्वों को तीन के समूह में रखा जाता है, तो मध्य तत्व का परमाणु भार उस समूह के अन्य दो तत्वों का लगभग अंकगणितीय माध्य होता है?", "opts": ["John Dalton / जॉन डाल्टन", "William Odling / विलियम ऑडलिंग", "Antoine Lavoisier / एंटोन लेवोइसियर", "J W Dobereiner / जे. डब्ल्यू. डॉबेराइनर"], "ans": 3},
+            {"en": "Quicksilver is also called:", "hi": "क्विकसिल्वर को और किस नाम से जाना जाता है?", "opts": ["Lead / सीसा", "Mercury / पारा", "Calcium / कैल्शियम", "Arsenic / आर्सेनिक"], "ans": 1},
+            {"en": "Which of the following elements do NOT have a valency of 2?", "hi": "निम्नलिखित में से किस तत्व की संयोजकता 2 नहीं है?", "opts": ["Iron / लोहा", "Magnesium / मैग्नीशियम", "Nitrogen / नाइट्रोजन", "Oxygen / ऑक्सीजन"], "ans": 2},
+            {"en": "Which of the following is a semiconductor?", "hi": "निम्नलिखित में से कौन अर्धचालक (सेमीकंडक्टर) है?", "opts": ["Silicon / सिलिकॉन", "Calcium / कैल्शियम", "Oxygen / ऑक्सीजन", "Helium / हीलियम"], "ans": 0},
+            {"en": "______ is the chemical element with the atomic number 1.", "hi": "_____ परमाणु क्रमांक 1 वाला रासायनिक तत्व है।", "opts": ["Helium / हीलियम", "Hydrogen / हाइड्रोजन", "Lithium / लिथियम", "Sodium / सोडियम"], "ans": 1},
+            {"en": "Ta is the symbol of -", "hi": "Ta किसका प्रतीक है?", "opts": ["Titanium / टाइटेनियम", "Tantalum / टैंटलम", "Thallium / थैलियम", "Terbium / टर्बियम"], "ans": 1},
+            {"en": "What is the atomic number of Chlorine?", "hi": "क्लोरीन का परमाणु क्रमांक क्या है?", "opts": ["7", "27", "17", "37"], "ans": 2},
+            {"en": "Which of the following noble gas is not found in air?", "hi": "निम्नलिखित में से कौन सी नोबल गैस वायु में नहीं पायी जाती है?", "opts": ["Radon / रेडॉन", "Xenon / ज़ेनॉन", "Argon / आर्गन", "Krypton / क्रीप्टान"], "ans": 0},
+            {"en": "Which of the following is NOT a halogen?", "hi": "निम्नलिखित में से कौन हलोजन नहीं है?", "opts": ["Fluorine / फ्लोरीन", "Chlorine / क्लोरीन", "Bromine / ब्रोमीन", "Tellerium / टेलरियम"], "ans": 3},
+            {"en": "What is the atomic number of Oxygen?", "hi": "ऑक्सीजन का परमाणु क्रमांक क्या है?", "opts": ["2", "8", "12", "27"], "ans": 1},
+            {"en": "Which element exists as a monoatomic molecule?", "hi": "कौन-सा तत्व एकपरमाणुक अणु के रूप में विद्यमान रहता है?", "opts": ["Argon / आर्गन", "Chlorine / क्लोरीन", "Nitrogen / नाइट्रोजन", "Oxygen / ऑक्सीजन"], "ans": 0},
+            {"en": "The symbol ‘B’ represents which element?", "hi": "प्रतीक 'B' किस तत्व का प्रतिनिधित्व करता है?", "opts": ["Barium / बेरियम", "Bromine / ब्रोमीन", "Beryllium / बेरिलियम", "Boron / बोरॉन"], "ans": 3},
+            {"en": "Which of the following pairs of element names and symbols is correctly matched?", "hi": "निम्नलिखित में से कौन सा तत्व के नाम और प्रतीक का युग्म सही सुमेलित है?", "opts": ["Silver – S / सिल्वर – S", "Mercury – Me / मर्करी – Me", "Tin – Sn / टिन – Sn", "Lead – Ld / लेड – Ld"], "ans": 2},
+            {"en": "Consider the following statements regarding the size of an atom.\nStatement 1: The size of an atom is approximately in the range of 0.1 nm to 0.5 nm.\nStatement 2: Atomic size increases as we move from left to right in a period of the periodic table.\nStatement 3: The radius of a hydrogen atom is about 10⁻¹⁰ meters.\nWhich of the above statements is/are correct?", "hi": "एक परमाणु के आकार के संबंध में निम्नलिखित कथनों पर विचार करें।\nकथन 1: एक परमाणु का आकार लगभग 0.1 nm से 0.5 nm की सीमा में होता है।\nकथन 2: जब हम आवर्त सारणी के एक आवर्त में बाएं से दाएं जाते हैं तो परमाणु का आकार बढ़ता है।\nकथन 3: एक हाइड्रोजन परमाणु की त्रिज्या लगभग 10⁻¹⁰ मीटर होती है।\nउपरोक्त में से कौन सा/से कथन सही है/हैं?", "opts": ["Only 1 and 3 / केवल 1 और 3", "Only 1 and 2 / केवल 1 और 2", "Only 1, 2 and 3 / केवल 1, 2 और 3", "Only 2 and 3 / केवल 2 और 3"], "ans": 0},
+            {"en": "Considering the periodic trends, which property explains why noble gases are chemically inert under standard conditions?", "hi": "आवर्त प्रवृत्तियों को ध्यान में रखते हुए, कौन-सा गुणधर्म यह व्याख्या करता है कि मानक परिस्थितियों में उत्कृष्ट गैसें रासायनिक रूप से अक्रिय क्यों होती हैं?", "opts": ["High electronegativity / उच्च विद्युतऋणात्मकता", "Low ionization energy / निम्न आयनन ऊर्जा", "Completely filled valence shell / पूर्णतः भरा हुआ संयोजकता कोश", "High atomic mass / उच्च परमाणु द्रव्यमान"], "ans": 2},
+            {"en": "In the context of periodicity, elements in the same group tend to display similar chemical properties. Which primary factor is responsible for this similarity among group members?", "hi": "आवर्तिता के संदर्भ में, एक ही समूह में स्थित तत्व समान रासायनिक गुणधर्म प्रदर्शित करते हैं। समूह के सदस्यों के बीच इस समानता के लिए कौन-सा मुख्य कारक उत्तरदायी है?", "opts": ["Similar valence electronic configuration / समान संयोजी इलेक्ट्रॉनिक विन्यास", "Identical atomic numbers / एकसमान परमाणु क्रमांक", "Similar atomic masses / समान परमाणु द्रव्यमान", "Constant atomic radius / स्थिर परमाणु त्रिज्या"], "ans": 0},
+            {"en": "When moving down a group in the Modern Periodic Table, what happens to the number of valence electrons?", "hi": "आधुनिक आवर्त सारणी में किसी वर्ग में नीचे जाने पर संयोजी इलेक्ट्रॉनों की संख्या में क्या परिवर्तन होता है?", "opts": ["Remains the same / समान रहती है", "Increases by two / दो की वृद्धि होती है", "Decreases by one / एक की कमी होती है", "Increases by one / एक की वृद्धि होती है"], "ans": 0},
+            {"en": "Which factors are responsible for the increase in metallic character down a group in the periodic table?", "hi": "आवर्त सारणी में किसी वर्ग में नीचे की ओर जाने पर धात्विक लक्षण में वृद्धि के लिए कौन-से कारक उत्तरदायी होते हैं?", "opts": ["Decreasing ionization energy and increasing atomic size / ह्रासमान आयनन ऊर्जा और वर्धमान परमाणु आकार", "Constant ionization energy and decreasing atomic size / स्थिर आयनन ऊर्जा और ह्रासमान परमाणु आकार", "Increasing ionization energy and decreasing atomic size / वर्धमान आयनन ऊर्जा और ह्रासमान परमाणु आकार", "Increasing atomic size and constant ionization energy / वर्धमान परमाणु आकार और स्थिर आयनन ऊर्जा"], "ans": 0},
+            {"en": "Which of the following elements is a gas at room temperature and belongs to Group 17 of the periodic table?", "hi": "निम्नलिखित में से कौन सा तत्व कमरे के तापमान पर गैसीय अवस्था में होता है और आवर्त सारणी के समूह 17 से संबंधित है?", "opts": ["Iodine / आयोडीन", "Fluorine / फ्लोरीन", "Astatine / एस्टाटाइन", "Bromine / ब्रोमीन"], "ans": 1},
+            {"en": "Which of the following numbers represent the atomic mass of calcium?", "hi": "निम्नलिखित में से कौन-सी संख्या कैल्शियम के परमाणु द्रव्यमान को दर्शाती है?", "opts": ["32 u", "16 u", "40 u", "14 u"], "ans": 2},
+            {"en": "Which of the following non-metals is a liquid?", "hi": "निम्नलिखित में से कौन-सी अधातु द्रव है?", "opts": ["Chlorine / क्लोरीन", "Bromine / ब्रोमीन", "Fluorine / फ्लोरीन", "Sulphur / सल्फर"], "ans": 1},
+            {"en": "Which of the following symbols is used for the element phosphorus as per the rules for atomic symbols?", "hi": "परमाणु प्रतीकों के नियमों के अनुसार फास्फोरस तत्व के लिए निम्नलिखित में से किस प्रतीक का उपयोग किया जाता है?", "opts": ["Ph", "P", "Ps", "Pr"], "ans": 1},
+            {"en": "What is the atomic mass of magnesium?", "hi": "मैग्नीशियम का परमाणु द्रव्यमान क्या है?", "opts": ["1", "24", "6", "14"], "ans": 1},
+            {"en": "What is the IUPAC rule for writing element symbols?", "hi": "तत्वों के प्रतीक लिखने का IUPAC नियम क्या है?", "opts": ["First letter uppercase, second lowercase (in case of two letters) / पहला अक्षर बड़ा, दूसरा छोटा (दो अक्षरों के मामले में)", "Both letters always in uppercase form (in case of two letters) / दोनों अक्षर हमेशा बड़े रूप में (दो अक्षरों के मामले में)", "Symbols written in numeric codes / प्रतीक संख्यात्मक कोड में लिखे जाते हैं", "Two lowercase letters always used (in case of two letters) / हमेशा दो छोटे अक्षर उपयोग किए जाते हैं (दो अक्षरों के मामले में)"], "ans": 0},
+            {"en": "What is the correct symbol for the element sodium?", "hi": "सोडियम तत्व का सही प्रतीक क्या है?", "opts": ["Na", "Sd", "S", "So"], "ans": 0},
+            {"en": "Sodium, carbon and oxygen elements are present in Washing Soda. Select the INCORRECT symbol of these elements.", "hi": "वॉशिंग सोडा में सोडियम, कार्बन और ऑक्सीजन तत्व मौजूद होते हैं। इन तत्वों के गलत प्रतीक का चयन करें।", "opts": ["O", "C", "SO", "Na"], "ans": 2},
+            {"en": "Which of the following is the correct symbol for the element lead?", "hi": "निम्नलिखित में से कौन सा तत्व लेड (Lead) के लिए सही प्रतीक है?", "opts": ["Le", "Lb", "Pb", "Ld"], "ans": 2},
+            {"en": "Which of the following elements shows 2 valency?", "hi": "निम्नलिखित में से कौन सा तत्व 2 संयोजकता दर्शाता है?", "opts": ["Beryllium / बेरिलियम", "Lithium / लिथियम", "Hydrogen / हाइड्रोजन", "Helium / हीलियम"], "ans": 0},
+            {"en": "Which of the following elements has atomic number 11?", "hi": "निम्नलिखित में से किस तत्व का परमाणु क्रमांक 11 है?", "opts": ["Magnesium / मैग्नीशियम", "Sodium / सोडियम", "Nitrogen / नाइट्रोजन", "Potassium / पोटेशियम"], "ans": 1},
+            {"en": "The atomic number of phosphorus atom is:", "hi": "फॉस्फोरस परमाणु का परमाणु क्रमांक क्या है?", "opts": ["16", "17", "14", "15"], "ans": 3},
+            {"en": "How many elements exist in nature according to Newlands law of octaves?", "hi": "न्यूलैंड्स के अष्टक नियम के अनुसार प्रकृति में कितने तत्व विद्यमान हैं?", "opts": ["46", "56", "76", "36"], "ans": 1},
+            {"en": "Select the correct order of Chlorine, Bromine and Iodine for Dobereiner's Law of Triads.", "hi": "डोबेराइनर के त्रिक नियम के लिए क्लोरीन, ब्रोमीन और आयोडीन का सही क्रम चुनिए।", "opts": ["Iodine, Bromine, Chlorine / आयोडीन, ब्रोमीन, क्लोरीन", "Bromine, Iodine, Chlorine / ब्रोमीन, आयोडीन, क्लोरीन", "Chlorine, Iodine, Bromine / क्लोरीन, आयोडीन, ब्रोमीन", "Chlorine, Bromine, Iodine / क्लोरीन, ब्रोमीन, आयोडीन"], "ans": 3},
+            {"en": "According to Mendeleev, the properties of elements are the periodic function of their:", "hi": "मेन्डेलीव के अनुसार, तत्वों के गुण किसके आवर्त फलन हैं?", "opts": ["atomic masses / परमाणु द्रव्यमान", "reactivity of elements / तत्वों की अभिक्रियाशीलता", "atomic radius / परमाणु त्रिज्या", "atomic number / परमाणु क्रमांक"], "ans": 0},
+            {"en": "Which of the following with respect to the Modern Periodic Table is NOT correct?", "hi": "आधुनिक आवर्त सारणी के संदर्भ में निम्नलिखित में से कौन सा कथन सही नहीं है?", "opts": ["It has 18 groups and 7 periods. / इसमें 18 समूह और 7 आवर्त हैं।", "The number of shells increases as we go down the group. / समूह में नीचे जाने पर कोशों की संख्या बढ़ जाती है।", "The elements present in the same group have same number of valence electrons. / एक ही समूह में उपस्थित तत्वों में संयोजी इलेक्ट्रॉनों की संख्या समान होती है।", "Na, Mg and S belongs to the 4th period of the Modern Periodic Table. / Na, Mg और S आधुनिक आवर्त सारणी के 4वें आवर्त से संबंधित हैं।"], "ans": 3},
+            {"en": "Select the correct Dobereiner's triads from the given sets.", "hi": "दी गई श्रेणियों में से सही डाॅबेराइनर के त्रिक का चयन करें।", "opts": ["Ca, Sr, Ba", "Li, Na, Ba", "Ca, Sr, I", "F, Cl, Br"], "ans": 0},
+            {"en": "Which of the following properties remain same while moving down the group in the periodic table?", "hi": "आवर्त सारणी में नीचे की ओर जाने पर निम्नलिखित में से कौन सा गुण समान रहता है?", "opts": ["Non-metallic character / अधात्विक लक्षण", "Valency / संयोजकता", "Metallic character / धात्विक लक्षण", "Atomic size / परमाणु आकार"], "ans": 1},
+            {"en": "In which group and period is carbon present?", "hi": "कार्बन किस समूह और आवर्त में मौजूद है?", "opts": ["Group 13 and period 4 / समूह 13 और अवधि 4", "Group 14 and period 2 / समूह 14 और अवधि 2", "Group 5 and period 5 / समूह 5 और अवधि 5", "Group 1 and period 2 / समूह 1 और अवधि 2"], "ans": 1},
+            {"en": "An atom of element with electronic configuration of 2, 8, 8. To which group does it belong?", "hi": "2, 8, 8 के इलेक्ट्रॉनिक विन्यास वाले तत्व का एक परमाणु। यह किस समूह से संबंधित है?", "opts": ["18th group / 18वां समूह", "10th group / 10वां समूह", "4th group / चौथा समूह", "6th group / 6वां समूह"], "ans": 0},
+            {"en": "In the Modern Periodic Table elements present in one group have the same number of ______", "hi": "आधुनिक आवर्त सारणी में एक समूह में उपस्थित तत्वों की ______ संख्या समान होती है", "opts": ["shells / गोले", "electrons / इलेक्ट्रॉनों", "protons / प्रोटान", "valence electrons / अणु की संयोजन क्षमता"], "ans": 3},
+            {"en": "According to Newland's Law of Octaves, every________ element had properties similar to that of the first element", "hi": "न्यूलैंड के अष्टक नियम के अनुसार, प्रत्येक ________ तत्व के गुण पहले तत्व के समान होते हैं।", "opts": ["fourth / चौथे", "eighth / आठवें", "seventh / सातवें", "sixth / छठें"], "ans": 1}
+        ];
+
+        const state = {
+            current: 0,
+            answers: new Array(QUESTIONS.length).fill(null),
+            locked: new Array(QUESTIONS.length).fill(false),
+            visited: new Array(QUESTIONS.length).fill(false),
+            lang: 'en',
+            mode: 'test',
+            startTime: null,
+            timerInterval: null,
+            elapsed: 0
+        };
+
+        function $(id) { return document.getElementById(id); }
+        function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+
+        function toast(msg) {
+            const t = $('toast');
+            $('toastText').textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2000);
+        }
+
+        function formatTime(s) {
+            const m = Math.floor(s / 60);
+            return String(m).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+        }
+
+        function startApp(mode) {
+            state.mode = mode;
+            $('startScreen').classList.add('hidden');
+            $('quizApp').classList.remove('hidden');
+            state.startTime = Date.now();
+            state.visited[0] = true;
+            state.timerInterval = setInterval(() => {
+                state.elapsed = Math.floor((Date.now() - state.startTime) / 1000);
+                $('timerText').textContent = formatTime(state.elapsed);
+            }, 1000);
+            renderQuestion();
+            buildPalette();
+        }
+
+        function renderQuestion() {
+            const i = state.current;
+            const q = QUESTIONS[i];
+            const qText = state.lang === 'en' ? q.en : q.hi;
+            const isQuiz = state.mode === 'quiz';
+            const locked = state.locked[i];
+            const userAns = state.answers[i];
+
+            let optsHtml = '';
+            q.opts.forEach((opt, idx) => {
+                let cls = '';
+                let tag = '';
+                if (isQuiz && locked) {
+                    if (idx === q.ans) { cls = 'correct'; tag = '<span class="opt-tag">Correct</span>'; }
+                    if (userAns === idx && idx !== q.ans) { cls = 'wrong'; tag = '<span class="opt-tag">Your Ans</span>'; }
+                } else if (userAns === idx) {
+                    cls = 'selected';
+                }
+                optsHtml += `
+                    <div class="opt ${cls} ${locked ? 'locked' : ''}" onclick="selectOption(${idx})">
+                        <div class="opt-letter">${String.fromCharCode(65 + idx)}</div>
+                        <div class="opt-text">${opt}</div>
+                        ${tag}
+                    </div>
+                `;
+            });
+
+            let solHtml = '';
+            if (isQuiz && locked) {
+                solHtml = `
+                    <div class="sol-box">
+                        <div class="sol-head"><i class="fas fa-lightbulb"></i> Answer Key</div>
+                        <div class="sol-content">Correct Option: <strong>${String.fromCharCode(65 + q.ans)} (${q.opts[q.ans]})</strong></div>
+                    </div>
+                `;
+            }
+
+            $('quizMain').innerHTML = `
+                <div class="q-card">
+                    <div class="q-top">
+                        <div class="q-num-badge"><i class="fas fa-hashtag"></i> Question ${i + 1} of ${QUESTIONS.length}</div>
+                        <button class="lang-btn" onclick="toggleLang()"><i class="fas fa-language"></i> ${state.lang === 'en' ? 'हिन्दी' : 'English'}</button>
+                    </div>
+                    <div class="q-text">${qText}</div>
+                    <div class="opts">${optsHtml}</div>
+                    ${solHtml}
+                </div>
+            `;
+
+            $('prevBtn').disabled = i === 0;
+            $('nextLabel').textContent = i === QUESTIONS.length - 1 ? 'Finish' : 'Next';
+            updatePaletteGrid();
+        }
+
+        function selectOption(idx) {
+            const i = state.current;
+            if (state.mode === 'quiz' && state.locked[i]) return;
+
+            state.answers[i] = idx;
+            if (state.mode === 'quiz') {
+                state.locked[i] = true;
+                if (idx === QUESTIONS[i].ans) toast('Correct! 🎉');
+                else toast('Incorrect');
+            }
+            renderQuestion();
+        }
+
+        function toggleLang() {
+            state.lang = state.lang === 'en' ? 'hi' : 'en';
+            renderQuestion();
+        }
+
+        function prevQuestion() {
+            if (state.current > 0) {
+                state.current--;
+                state.visited[state.current] = true;
+                renderQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            if (state.current < QUESTIONS.length - 1) {
+                state.current++;
+                state.visited[state.current] = true;
+                renderQuestion();
+            } else {
+                openSubmitModal();
+            }
+        }
+
+        function buildPalette() {
+            const grid = $('paletteGrid');
+            grid.innerHTML = '';
+            QUESTIONS.forEach((_, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'pal-btn';
+                btn.id = 'pal-' + i;
+                btn.textContent = i + 1;
+                btn.onclick = () => {
+                    state.current = i;
+                    state.visited[i] = true;
+                    closePalette();
+                    renderQuestion();
+                };
+                grid.appendChild(btn);
+            });
+            updatePaletteGrid();
+        }
+
+        function updatePaletteGrid() {
+            QUESTIONS.forEach((_, i) => {
+                const btn = $('pal-' + i);
+                if (!btn) return;
+                btn.className = 'pal-btn';
+                if (i === state.current) btn.classList.add('current');
+                if (state.answers[i] !== null) btn.classList.add('answered');
+            });
+        }
+
+        function openPalette() {
+            $('paletteDrawer').classList.add('open');$('paletteOverlay').classList.add('open');
+        }
+        function closePalette() {
+            $('paletteDrawer').classList.remove('open');$('paletteOverlay').classList.remove('open');
+        }
+
+        function openSubmitModal() {
+            const ans = state.answers.filter(a => a !== null).length;
+            $('modalAttempted').textContent = ans;
+            $('modalUnattempted').textContent = QUESTIONS.length - ans;
+            $('submitModal').classList.add('open');
+        }
+        function closeSubmitModal() {
+            $('submitModal').classList.remove('open');
+        }
+
+        function confirmSubmit() {
+            closeSubmitModal();
+            if (state.timerInterval) clearInterval(state.timerInterval);
+
+            let correct = 0, wrong = 0;
+            state.answers.forEach((ans, i) => {
+                if (ans !== null) {
+                    if (ans === QUESTIONS[i].ans) correct++;
+                    else wrong++;
+                }
+            });
+
+            const attempted = correct + wrong;
+            const accuracy = attempted > 0 ? Math.round((correct / attempted) * 100) : 0;
+
+            $('resultsInner').innerHTML = `
+                <div class="res-hero">
+                    <h2>Test Completed!</h2>
+                    <p style="color:var(--text-muted);font-size:14px;margin-top:2px;">Total Time: ${formatTime(state.elapsed)}</p>
+                </div>
+                <div class="res-score-card">
+                    <div class="res-score-val">${correct} <span>/ ${QUESTIONS.length}</span></div>
+                    <div class="res-score-lbl">Total Score</div>
+                </div>
+                <div class="res-grid">
+                    <div class="res-item">
+                        <div class="res-item-val" style="color:var(--green)">${correct}</div>
+                        <div class="res-item-lbl">Correct</div>
+                    </div>
+                    <div class="res-item">
+                        <div class="res-item-val" style="color:var(--red)">${wrong}</div>
+                        <div class="res-item-lbl">Wrong</div>
+                    </div>
+                    <div class="res-item">
+                        <div class="res-item-val">${attempted}</div>
+                        <div class="res-item-lbl">Attempted</div>
+                    </div>
+                    <div class="res-item">
+                        <div class="res-item-val" style="color:var(--primary)">${accuracy}%</div>
+                        <div class="res-item-lbl">Accuracy</div>
+                    </div>
+                </div>
+                <div class="res-actions">
+                    <button class="res-btn primary" onclick="location.reload()"><i class="fas fa-redo"></i> Retake Test</button>
+                </div>
+            `;
+            $('resultsScreen').classList.add('open');
+        }
+    </script>
+</body>
+</html>
